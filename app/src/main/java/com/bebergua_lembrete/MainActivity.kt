@@ -12,11 +12,15 @@ import android.widget.TextView
 import android.widget.TimePicker
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.bebergua_lembrete.databinding.ActivityMainBinding
 import com.bebergua_lembrete.model.CalcularIngestaoAgua
 import java.text.NumberFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
     private lateinit var edit_peso: EditText
 
     private lateinit var edit_idade: EditText
@@ -49,37 +53,42 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         supportActionBar?.hide()
 
-        iniciatComponentes()
+//        iniciatComponentes()
         calcularIngestaoAgua = CalcularIngestaoAgua()
+        //val bt_calcular = binding.bitCalcular
 
-        bt_calcular.setOnClickListener{
-            if(edit_peso.text.toString().isEmpty()){
+        binding.bitCalcular.setOnClickListener{
+            if(binding.editPeso.text.toString().isEmpty()){
                 Toast.makeText(this,getString(R.string.toast_informe_peso), Toast.LENGTH_SHORT).show()
-            }else  if(edit_idade.text.toString().isEmpty()){
+            }else  if(binding.editIdade.text.toString().isEmpty()){
                 Toast.makeText(this,getString(R.string.toast_informe_idade), Toast.LENGTH_SHORT).show()
             }else{
-                val peso = edit_peso.text.toString().toDouble()
-                val idade = edit_idade.text.toString().toInt()
+                val peso = binding.editPeso.text.toString().toDouble();
+//                val peso = edit_peso.text.toString().toDouble()
+                val idade = binding.editIdade.text.toString().toInt()
+//                val idade = edit_idade.text.toString().toInt()
                 calcularIngestaoAgua.calcularTotalMl(peso,idade)
                resultadoMl= calcularIngestaoAgua.ResultadoMl()
                 var formatar = NumberFormat.getInstance(Locale("pt", "BR"))
                 formatar.isGroupingUsed = false
-                txt_resultador_ml.text = formatar.format(resultadoMl)+" "+"ml"
+
+                binding.txtResultadoMl.text = formatar.format(resultadoMl)+" "+"ml"
             }
         }
 
-        ic_redefinir_dados.setOnClickListener {
+        binding.icRedefinir.setOnClickListener {
             val alertDialog = AlertDialog.Builder(this)
             alertDialog.setTitle(R.string.dialog_title)
             alertDialog.setMessage(R.string.dialog_message)
-            alertDialog.setPositiveButton("ok", {dialogInterface,i->
-                edit_peso.setText("")
-                edit_idade.setText("")
-                txt_resultador_ml.text = ""
+            alertDialog.setPositiveButton("ok", { dialogInterface, i ->
+                binding.editPeso.setText("")
+                binding.editIdade.setText("")
+                binding.txtResultadoMl.text = ""
             })
             alertDialog.setNegativeButton("cancelar",{dialogInterface, i->
 
@@ -88,21 +97,23 @@ class MainActivity : AppCompatActivity() {
             dialog.show()
         }
 
-        bt_lembrete.setOnClickListener{
+        binding.btDefinirLembrete.setOnClickListener{
             calendario = Calendar.getInstance()
             horaAtual = calendario.get(Calendar.HOUR_OF_DAY)
             minutosAtuais = calendario.get(Calendar.MINUTE)
             timePickerDialog = TimePickerDialog(this,{
                 timePicker: TimePicker, hourOfDay: Int, minutes: Int ->
-                txt_hora.text = String.format("%02d", hourOfDay)
-                txt_minutos.text= String.format("%02d", minutes)
+                binding.txtHora.text = String.format("%02d", hourOfDay)
+                binding.txtMinutos.text= String.format("%02d", minutes)
 
             },horaAtual,minutosAtuais,true)
 
             timePickerDialog.show()
         }
 
-        bt_alarme.setOnClickListener {
+        binding.btDefinirAlarme.setOnClickListener {
+            val txt_hora = binding.txtHora
+            val txt_minutos = binding.txtMinutos
             if(!txt_hora.text.toString().isEmpty() && !txt_minutos.text.toString().isEmpty()){
                 val intent = Intent(AlarmClock.ACTION_SET_ALARM)
                 intent.putExtra(AlarmClock.EXTRA_HOUR,txt_hora.text.toString().toInt())
@@ -118,16 +129,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun iniciatComponentes (){
-        edit_peso = findViewById(R.id.edit_peso)
-        edit_idade = findViewById(R.id.edit_idade)
-        bt_calcular = findViewById(R.id.bit_calcular)
-        txt_resultador_ml= findViewById(R.id.txt_resultado_ml)
-        ic_redefinir_dados = findViewById(R.id.ic_redefinir)
-        bt_lembrete = findViewById(R.id.bt_definir_lembrete)
-        bt_alarme = findViewById(R.id.bt_definir_alarme)
-        txt_hora = findViewById(R.id.txt_hora)
-        txt_minutos = findViewById(R.id.txt_minutos)
-
-    }
+//    private fun iniciatComponentes (){
+//        edit_peso = findViewById(R.id.edit_peso)
+//        edit_idade = findViewById(R.id.edit_idade)
+//        bt_calcular = findViewById(R.id.bit_calcular)
+//        txt_resultador_ml= findViewById(R.id.txt_resultado_ml)
+//        ic_redefinir_dados = findViewById(R.id.ic_redefinir)
+//        bt_lembrete = findViewById(R.id.bt_definir_lembrete)
+//        bt_alarme = findViewById(R.id.bt_definir_alarme)
+//        txt_hora = findViewById(R.id.txt_hora)
+//        txt_minutos = findViewById(R.id.txt_minutos)
+//
+//    }
 }
